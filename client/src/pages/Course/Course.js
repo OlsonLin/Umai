@@ -10,7 +10,6 @@ import CategoryService from "../../services/category.service";
 import CourseService from "../../services/course.service";
 import getValidMessage from "../../validMessage/validMessage";
 import { PUBLIC_URL } from "../../config/config";
-import { number } from "joi";
 import Swal from "sweetalert2";
 
 function Course(props) {
@@ -249,47 +248,47 @@ function Course(props) {
     }
   }, [page]);
 
-  if (location.search != "") {
+  if (location.search !== "") {
     if (
-      category_number == "Japan" ||
-      category_number == 1 ||
-      category_number == "%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "Japan" ||
+      category_number === 1 ||
+      category_number === "%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 1;
     } else if (
-      category_number == "Korea" ||
-      category_number == 2 ||
-      category_number == "%E9%9F%93%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "Korea" ||
+      category_number === 2 ||
+      category_number === "%E9%9F%93%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 2;
     } else if (
-      category_number == "France" ||
-      category_number == 3 ||
-      category_number == "%E6%B3%95%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "France" ||
+      category_number === 3 ||
+      category_number === "%E6%B3%95%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 3;
     } else if (
-      category_number == "Italy" ||
-      category_number == 4 ||
-      category_number == "%E7%BE%A9%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "Italy" ||
+      category_number === 4 ||
+      category_number === "%E7%BE%A9%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 4;
     } else if (
-      category_number == "Chinese" ||
-      category_number == 5 ||
-      category_number == "%E4%B8%AD%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "Chinese" ||
+      category_number === 5 ||
+      category_number === "%E4%B8%AD%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 5;
     } else if (
-      category_number == "Mediation" ||
-      category_number == 6 ||
-      category_number == "%E7%B6%93%E5%85%B8%E8%AA%BF%E9%A3%B2"
+      category_number === "Mediation" ||
+      category_number === 6 ||
+      category_number === "%E7%B6%93%E5%85%B8%E8%AA%BF%E9%A3%B2"
     ) {
       category_number = 6;
     } else if (
-      category_number == "All" ||
-      category_number == 7 ||
-      category_number == "all"
+      category_number === "All" ||
+      category_number === 7 ||
+      category_number === "all"
     ) {
       category_number = 7;
     } else category_number = 0;
@@ -308,7 +307,7 @@ function Course(props) {
       // 複製分級的陣列
       let TrueArrow = [...categoryLevel]
         .filter(function (item) {
-          return item.closest_batchs?.batch_date != null;
+          return item.closest_batchs?.batch_date !== null;
         })
         .sort(function (a, b) {
           //  如果日期正常，進行日期比對，日期大的往後排
@@ -318,7 +317,7 @@ function Course(props) {
         });
       let falseArrow = [...categoryLevel].filter(function (item) {
         //  如果日期Null，就不比了，沒意義
-        return item.closest_batchs?.batch_date == null;
+        return item.closest_batchs?.batch_date === null;
       });
       // 接在一起
       Array.prototype.push.apply(TrueArrow, falseArrow);
@@ -331,7 +330,7 @@ function Course(props) {
       console.log(selectedOptionDate);
       let TrueArrow = [...categoryLevel]
         .filter(function (item) {
-          return item.closest_batchs?.batch_date != null;
+          return item.closest_batchs?.batch_date !== null;
         })
         .sort(function (a, b) {
           return a.closest_batchs?.batch_date < b.closest_batchs?.batch_date
@@ -339,7 +338,7 @@ function Course(props) {
             : -1;
         });
       let falseArrow = [...categoryLevel].filter(function (item) {
-        return item.closest_batchs?.batch_date == null;
+        return item.closest_batchs?.batch_date === null;
       });
       Array.prototype.push.apply(TrueArrow, falseArrow);
       setCategory(TrueArrow);
@@ -381,21 +380,21 @@ function Course(props) {
 
     if (selectedOptionStart === "true" && selectedOptionDate === "") {
       let TrueArrow = [...categoryLevel].filter(function (item) {
-        return item.closest_batchs?.batch_date != null;
+        return item.closest_batchs?.batch_date !== null;
       });
 
       let falseArrow = [...categoryLevel].filter(function (item) {
-        return item.closest_batchs?.batch_date == null;
+        return item.closest_batchs?.batch_date === null;
       });
 
       Array.prototype.push.apply(TrueArrow, falseArrow);
       setCategory(TrueArrow);
-    } else if (selectedOptionStart === "true" && selectedOptionDate != "") {
+    } else if (selectedOptionStart === "true" && selectedOptionDate !== "") {
       console.log("123");
       setCategory(categoryCondition);
     } else if (selectedOptionStart === "false") {
       let TrueArrow = [...category].filter(function (item) {
-        return item.closest_batchs?.batch_date != null;
+        return item.closest_batchs?.batch_date !== null;
       });
       setCategory(TrueArrow);
     }
@@ -413,17 +412,17 @@ function Course(props) {
     if (selectedOptionLevel === "3") {
       setCategory(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 3;
+          return item.course_level === 3;
         })
       );
       setCategoryLevel(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 1;
+          return item.course_level === 1;
         })
       );
       setCategoryLevel(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 3;
+          return item.course_level === 3;
         })
       );
       setPageData(category.slice(0, perPage));
@@ -431,12 +430,12 @@ function Course(props) {
     if (selectedOptionLevel === "2") {
       setCategory(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 2;
+          return item.course_level === 2;
         })
       );
       setCategoryLevel(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 2;
+          return item.course_level === 2;
         })
       );
       setPageData(category.slice(0, perPage));
@@ -444,12 +443,12 @@ function Course(props) {
     if (selectedOptionLevel === "1") {
       setCategory(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 1;
+          return item.course_level === 1;
         })
       );
       setCategoryLevel(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 1;
+          return item.course_level === 1;
         })
       );
     }
@@ -521,7 +520,7 @@ function Course(props) {
               setSelectedOptionStart("");
             }}
           >
-            <option value="" selected={selectedOptionDate == ""}>
+            <option value="" selected={selectedOptionDate === ""}>
               課程排序
             </option>
             <option value="離今日最近">離今日最近</option>
@@ -535,7 +534,7 @@ function Course(props) {
               setSelectedOptionStart(e.target.value);
             }}
           >
-            <option value="" selected={selectedOptionStart == ""}>
+            <option value="" selected={selectedOptionStart === ""}>
               課程顯示
             </option>
             <option value="true">顯示全部課程</option>

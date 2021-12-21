@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import AuthService from "./services/auth.service";
 
-import NavbarOld from "./components/Navbar";
 import courseService from "./services/course.service";
 import HomePage from "./pages/Homepage/HomePage";
 import Navbar2 from "./components/Navbar2";
-import NavbarHomePage from "./components/NavbarHomePage";
 import MemberCenter from "./pages/MemberCenter/MemberCenter";
 import Login from "./components/member/Login";
 import ShoppingCart from "./pages/ShoppingCart/shopping-cart/ShoppingCart";
 import ShoppingList from "./pages/ShoppingCart/ShoppingList/ShoppingList";
 import PaymentMethod from "./pages/ShoppingCart/paymentMethod/PaymentMethod";
-import { numDotFormat } from "./config/formula";
 
 // 測試元件區
-import Masonry from "./pages/Masonry/Masonry";
+// import Masonry from "./pages/Masonry/Masonry";
 import Forum from "./pages/Forum/Forum";
 
 import Contactus from "./pages/Contactus/Contactus";
@@ -24,13 +22,13 @@ import Course from "./pages/Course/Course";
 import Chef from "./pages/Chef/Chef";
 
 import CourseDetail from "./pages/CourseDetail/CourseInfomation";
-import CourseStar from "./pages/CourseDetail/CourseStar";
-import DefaultStudentCard from "./components/DefaultStudentCard";
-import CourseMiniCard from "./components/CourseMiniCard";
-import ShareCard from "./components/ShareCard";
-import Calendar from "./components/Calendar";
-import CalendarAvailable from "./components/CalendarAvailable";
-import CalendarMulti from "./components/CalendarMulti";
+// import CourseStar from "./pages/CourseDetail/CourseStar";
+// import DefaultStudentCard from "./components/DefaultStudentCard";
+// import CourseMiniCard from "./components/CourseMiniCard";
+// import ShareCard from "./components/ShareCard";
+// import Calendar from "./components/Calendar";
+// import CalendarAvailable from "./components/CalendarAvailable";
+// import CalendarMulti from "./components/CalendarMulti";
 import ForumPublish from "./pages/Forum/ForumPublish";
 import ForumUpdate from "./pages/Forum/ForumUpdate";
 import Footer from "./components/Footer";
@@ -45,8 +43,8 @@ function App() {
   // 登入視窗開關狀態
   const [showLogin, setShowLogin] = useState(false);
 
-  //搜尋內容
-  const [searchValue, setSearchValue] = useState("");
+  // //搜尋內容
+  // const [searchValue, setSearchValue] = useState("");
   //課程搜尋列狀態
   const [isActiveCourseSearch, setActiveCourseSearch] = useState("false");
 
@@ -120,23 +118,21 @@ function App() {
     // 回傳Incart值;
     console.log(ifIncart);
 
-    //產生購物車中，單筆課程所需用到的資料
-    let getOneCourseObject = async (batch_id) => {
-      try {
-        // 根據course_id與batch_id拿到購物車所需的課程資料 (cart)
-        let result = await courseService.getOneCourseObject(
-          course_id,
-          batch_id
-        );
-        return result;
-      } catch (error) {
-        console.log(error);
-      }
-    };
+    // //產生購物車中，單筆課程所需用到的資料
+    // let getOneCourseObject = async (batch_id) => {
+    //   try {
+    //     // 根據course_id與batch_id拿到購物車所需的課程資料 (cart)
+    //     let result = await courseService.getOneCourseObject(
+    //       course_id,
+    //       batch_id
+    //     );
+    //     return result;
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // };
 
-    //先在switch外宣告一個共用變數，用來接住資料庫回傳的個別課程資料
-    let CartCourseObject;
-    // 先在switch外宣告一個共用變數，用來接住回傳的資料庫狀態
+    // 在try/catch外宣告變數，用來接住回傳的資料庫狀態
     let updateResult;
 
     try {
@@ -194,7 +190,7 @@ function App() {
         console.log(error);
       }
     }
-  }, []);
+  }, [currentUser]);
 
   return (
     <Router>
