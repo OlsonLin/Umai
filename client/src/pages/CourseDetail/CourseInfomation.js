@@ -34,7 +34,7 @@ function CourseInfomation(props) {
   const {
     location,
     currentUser,
-    addCourseIntoCart,
+    handleAddIntoCart,
     cartCourseInfoList,
     setCartCourseInfoList,
     link,
@@ -433,7 +433,7 @@ function CourseInfomation(props) {
                         } else {
                           // 把課程加入購物車資料庫
                           if (currentUser) {
-                            addCourseIntoCart(
+                            handleAddIntoCart(
                               currentUser.id,
                               Number(id_number),
                               batch_id
@@ -871,7 +871,7 @@ function CourseInfomation(props) {
                       } else {
                         // 把課程加入購物車資料庫
                         if (currentUser) {
-                          addCourseIntoCart(
+                          handleAddIntoCart(
                             currentUser.id,
                             Number(id_number),
                             batch_id
