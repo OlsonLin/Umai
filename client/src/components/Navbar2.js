@@ -27,13 +27,11 @@ const Navbar = (props) => {
     handleToggleCourseSearch,
     cartCourseInfoList,
     setCartCourseInfoList,
-    checkoutCourse,
-    setCheckoutCourse,
     newAddCourse,
-    clearNewAddCourse,
     numberOfCoursesInCart,
     sumCartCoursePrice,
     setSumCartCoursePrice,
+    handleAddIntoCollection,
     link,
     setLink,
     data,
@@ -461,7 +459,7 @@ const Navbar = (props) => {
                               cartCourseInfoList={cartCourseInfoList}
                               setCartCourseInfoList={setCartCourseInfoList}
                               getSumCartCoursePrice={getSumCartCoursePrice}
-                              currentUser={currentUser}
+                              handleAddIntoCollection={handleAddIntoCollection}
                               refreshCartCourse={refreshCartCourse}
                               data={data}
                               setData={setData}

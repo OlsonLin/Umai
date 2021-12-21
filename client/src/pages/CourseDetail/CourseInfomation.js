@@ -21,23 +21,20 @@ import { ImFacebook2 } from "react-icons/im";
 import { GrInstagram } from "react-icons/gr";
 
 import CourseService from "../../services/course.service";
-import getValidMessage from "../../validMessage/validMessage";
+// import getValidMessage from "../../validMessage/validMessage";
 import Swal from "sweetalert2";
 
 import Join from "../../components/images/JoinPicture.jpg";
 
-import { AiOutlineMessage, AiOutlineHeart } from "react-icons/ai";
-import { MdCollectionsBookmark } from "react-icons/md";
+// import { AiOutlineMessage, AiOutlineHeart } from "react-icons/ai";
+// import { MdCollectionsBookmark } from "react-icons/md";
 
 function CourseInfomation(props) {
   //簡易判斷詳細課程ID
   const {
     location,
     currentUser,
-    clearNewAddCourse,
     addCourseIntoCart,
-    checkoutCourse,
-    setCheckoutCourse,
     cartCourseInfoList,
     setCartCourseInfoList,
     link,
@@ -224,12 +221,6 @@ function CourseInfomation(props) {
   // 給萬年曆用的(回傳已選定日期)
   const onChange = (e) => {
     setBatch(e);
-    setCheckoutCourse({
-      member_id: currentUser ? currentUser.id : undefined,
-      course_id: course_id ? course_id : undefined,
-      batch_id: batch_id ? batch_id : undefined,
-      amount: 1,
-    });
     for (let i = 0; i < course_batchJSON.length; i++) {
       if (e === course_batchJSON[i].batch_date) {
         setBatch_member(course_batchJSON[i].member_count);
@@ -878,8 +869,6 @@ function CourseInfomation(props) {
                           window.document.documentElement.scrollTop = 0;
                         });
                       } else {
-                        //清空新增課程state
-                        // await clearNewAddCourse();
                         // 把課程加入購物車資料庫
                         if (currentUser) {
                           addCourseIntoCart(

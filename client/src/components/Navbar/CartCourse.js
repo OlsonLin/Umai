@@ -14,6 +14,7 @@ const CartCourse = (props) => {
     cartCourseInfoList,
     setCartCourseInfoList,
     getSumCartCoursePrice,
+    handleAddIntoCollection,
     refreshCartCourse,
     data,
     setData,
@@ -213,7 +214,11 @@ const CartCourse = (props) => {
             <div className="edit-Button">
               {/* 收藏此課程 */}
               <div className="addToCollection">
-                <button>
+                <button
+                  onClick={() => {
+                    handleAddIntoCollection(CurrentInfoObject.course_id);
+                  }}
+                >
                   <p>收藏</p>
                 </button>
               </div>
