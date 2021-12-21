@@ -34,9 +34,8 @@ function CourseInfomation(props) {
   const {
     location,
     currentUser,
+    handleLoginClick,
     handleAddIntoCart,
-    cartCourseInfoList,
-    setCartCourseInfoList,
     link,
     setLink,
     data,
@@ -406,17 +405,9 @@ function CourseInfomation(props) {
                             icon: "warning",
                             // customClass: "Custom_Cancel",
                             confirmButtonColor: "#0078b3",
-                            confirmButtonText: "請先選擇日期後再點擊",
+                            confirmButtonText: "請先選擇課程梯次",
                           }).then(function () {
                             // window.location.reload();
-                          });
-                        } else if (!currentUser) {
-                          Swal.fire({
-                            title: "",
-                            icon: "warning",
-                            // customClass: "Custom_Cancel",
-                            confirmButtonColor: "#0078b3",
-                            confirmButtonText: "請先登入後再加入購物車哦",
                           });
                         } else if (
                           batch_member === newCourseJSON[0].member_limit
@@ -432,21 +423,12 @@ function CourseInfomation(props) {
                           });
                         } else {
                           // 把課程加入購物車資料庫
-                          if (currentUser) {
-                            handleAddIntoCart(
-                              currentUser.id,
-                              Number(id_number),
-                              batch_id
-                            );
-                          } else {
-                            Swal.fire({
-                              // title: "",
-                              icon: "warning",
-                              // customClass: "Custom_Cancel",
-                              confirmButtonColor: "#0078b3",
-                              confirmButtonText: "請先登入再結帳",
-                            });
-                          }
+                          handleAddIntoCart(
+                            currentUser,
+                            currentUser.id,
+                            Number(id_number),
+                            batch_id
+                          );
                         }
                       }}
                     >
@@ -466,13 +448,15 @@ function CourseInfomation(props) {
                             Swal.fire({
                               icon: "warning",
                               confirmButtonColor: "#0078b3",
-                              confirmButtonText: "請先選擇日期後再點擊",
+                              confirmButtonText: "請先選擇課程梯次",
                             });
                           } else if (!currentUser) {
                             Swal.fire({
                               icon: "warning",
                               confirmButtonColor: "#0078b3",
-                              confirmButtonText: "請先登入後再進行報名哦",
+                              confirmButtonText: "請先登入哦",
+                            }).then(function () {
+                              handleLoginClick();
                             });
                           } else if (
                             batch_member === newCourseJSON[0].member_limit
@@ -843,17 +827,10 @@ function CourseInfomation(props) {
                           icon: "warning",
                           // customClass: "Custom_Cancel",
                           confirmButtonColor: "#0078b3",
-                          confirmButtonText: "請先選擇日期後再點擊",
+                          confirmButtonText: "請先選擇課程梯次",
                         }).then(function () {
-                          // window.location.reload();
-                        });
-                      } else if (!currentUser) {
-                        Swal.fire({
-                          title: "",
-                          icon: "warning",
-                          // customClass: "Custom_Cancel",
-                          confirmButtonColor: "#0078b3",
-                          confirmButtonText: "請先登入後再加入購物車哦",
+                          window.document.body.scrollTop = 0;
+                          window.document.documentElement.scrollTop = 0;
                         });
                       } else if (
                         batch_member === newCourseJSON[0].member_limit
@@ -870,28 +847,19 @@ function CourseInfomation(props) {
                         });
                       } else {
                         // 把課程加入購物車資料庫
-                        if (currentUser) {
-                          handleAddIntoCart(
-                            currentUser.id,
-                            Number(id_number),
-                            batch_id
-                          );
-                        } else {
-                          Swal.fire({
-                            // title: "",
-                            icon: "warning",
-                            // customClass: "Custom_Cancel",
-                            confirmButtonColor: "#0078b3",
-                            confirmButtonText: "請先登入再結帳",
-                          });
-                        }
+                        handleAddIntoCart(
+                          currentUser,
+                          currentUser.id,
+                          Number(id_number),
+                          batch_id
+                        );
                       }
                     }}
                   >
                     加入購物車
                   </p>
                   <p>|</p>
-                  {batch != "尚未選擇" &&
+                  {batch !== "尚未選擇" &&
                   currentUser &&
                   batch_member <= newCourseJSON[0].member_limit ? (
                     <p className="Coursedetail-joinNow">
@@ -910,7 +878,7 @@ function CourseInfomation(props) {
                           Swal.fire({
                             icon: "warning",
                             confirmButtonColor: "#0078b3",
-                            confirmButtonText: "請先選擇日期後再點擊",
+                            confirmButtonText: "請先選擇課程梯次",
                           }).then(function () {
                             window.document.body.scrollTop = 0;
                             window.document.documentElement.scrollTop = 0;
@@ -919,7 +887,9 @@ function CourseInfomation(props) {
                           Swal.fire({
                             icon: "warning",
                             confirmButtonColor: "#0078b3",
-                            confirmButtonText: "請先登入後再進行報名哦",
+                            confirmButtonText: "請先登入哦",
+                          }).then(function () {
+                            handleLoginClick();
                           });
                         } else if (
                           batch_member === newCourseJSON[0].member_limit

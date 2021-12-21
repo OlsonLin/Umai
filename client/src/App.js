@@ -95,8 +95,39 @@ function App() {
     }
   };
 
+  //產生購物車中，單筆課程所需用到的資料
+  let getOneCourseObject = async (batch_id) => {
+    try {
+      // 根據course_id與batch_id拿到購物車所需的課程資料 (cart)
+      let result = await courseService.getOneCourseObject(batch_id);
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 判斷是否登入，並加入購物車
+  async function handleAddIntoCart(
+    currentUser,
+    member_id,
+    course_id,
+    batch_id
+  ) {
+    // 把課程加入購物車資料庫
+    if (currentUser) {
+      // 把課程加入購物車資料庫
+      addCourseIntoCart(member_id, course_id, batch_id);
+    } else {
+      // 把課程加入購物車state
+      setCartCourseInfoList(
+        ...cartCourseInfoList,
+        getOneCourseObject(batch_id)
+      );
+    }
+  }
+
   // 把課程加入購物車資料庫
-  async function handleAddIntoCart(member_id, course_id, batch_id) {
+  async function addCourseIntoCart(member_id, course_id, batch_id) {
     //檢查購物車資料庫中是否已經有此課程
     console.log("handleAddIntoCart start");
     console.log("member_id, course_id, batch_id: ");
@@ -110,20 +141,6 @@ function App() {
     console.log("ifIncart: ");
     // 回傳Incart值;
     console.log(ifIncart);
-
-    // //產生購物車中，單筆課程所需用到的資料
-    // let getOneCourseObject = async (batch_id) => {
-    //   try {
-    //     // 根據course_id與batch_id拿到購物車所需的課程資料 (cart)
-    //     let result = await courseService.getOneCourseObject(
-    //       course_id,
-    //       batch_id
-    //     );
-    //     return result;
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
 
     // 在try/catch外宣告變數，用來接住回傳的資料庫狀態
     let updateResult;
@@ -349,6 +366,7 @@ function App() {
           <div className="footerPadding">
             <CourseDetail
               currentUser={currentUser}
+              handleLoginClick={handleLoginClick}
               handleAddIntoCart={handleAddIntoCart}
               link={link}
               setLink={setLink}

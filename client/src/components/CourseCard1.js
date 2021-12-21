@@ -207,7 +207,10 @@ const CourseCard1 = (props) => {
               //   });
               // }}
               onClick={async () => {
-                if (batch_member === newCourseJSON[0].member_limit) {
+                if (
+                  courseDetail.closest_batchs.member_count ===
+                  courseDetail.member_limit
+                ) {
                   Swal.fire({
                     // title: "",
                     icon: "warning",
@@ -223,8 +226,13 @@ const CourseCard1 = (props) => {
                   if (currentUser) {
                     handleAddIntoCart(
                       currentUser.id,
-                      Number(id_number),
-                      batch_id
+                      Number(courseDetail.id),
+                      courseDetail.closest_batchs.batch_id
+                    );
+                    console.log(
+                      currentUser.id,
+                      Number(courseDetail.id),
+                      courseDetail.closest_batchs.batch_id
                     );
                   } else {
                     Swal.fire({
@@ -236,6 +244,7 @@ const CourseCard1 = (props) => {
                     });
                   }
                 }
+                console.log(courseDetail);
               }}
             />
             {/* <Link

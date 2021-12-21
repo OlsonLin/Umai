@@ -20,6 +20,7 @@ function Course(props) {
     collectionIds,
     refreshCollection,
     handleAddIntoCollection,
+    handleAddIntoCart,
   } = props;
   // 抓search用 Ex category?... search抓到?...
   let category_number = location.search.slice(1);
@@ -54,12 +55,6 @@ function Course(props) {
       console.log(error);
     }
   }, []);
-
-  // 加入購物車
-  const handleAddIntoCart = (course_id) => {
-    console.log("加入購物車");
-    console.log(course_id);
-  };
 
   // 立即購買
   const handlePurchase = (course_id) => {
