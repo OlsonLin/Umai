@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { numDotFormat } from "../../config/formula";
 import courseService from "../../services/course.service";
+import { PUBLIC_URL } from "../../config/config";
 
 import { FaMinus, FaPlus } from "react-icons/fa";
-
-import CoursePic from "../images/img7.jpg";
 
 const CartCourse = (props) => {
   const {
@@ -13,6 +13,7 @@ const CartCourse = (props) => {
     CurrentInfoObject,
     cartCourseInfoList,
     setCartCourseInfoList,
+    setSumCartCoursePrice,
     getSumCartCoursePrice,
     handleAddIntoCollection,
     refreshCartCourse,
@@ -96,26 +97,17 @@ const CartCourse = (props) => {
   }
 
   //從購物車中刪除指定課程
-  async function handleDeleteClick(member_id, course_id, batch_id, inCart) {
+  async function handleDeleteClick(member_id, course_id, batch_id) {
     if (cartCourseInfoList.length !== 0) {
       //從購物車資料庫中移除(將inCart歸零)
-      let updateResult = await courseService.UpdateCart(
-        currentUser.id,
-        CurrentInfoObject.course_id,
-        CurrentInfoObject.batch_id,
+      // let updateResult =
+      await courseService.UpdateCart(
+        member_id,
+        course_id,
+        batch_id,
         0,
         -1 * (CurrentInfoObject.amount - 1)
       );
-
-      // console.log("Delete_Course: ");
-      // console.log(
-      //   currentUser.id,
-      //   CurrentInfoObject.course_id,
-      //   CurrentInfoObject.batch_id,
-      //   0,
-      //   -1 * (CurrentInfoObject.amount - 1)
-      // );
-      // console.log(updateResult.data.updateResult[0]);
 
       //從購物車中刪除當前課程
       let newCartCourseInfoList = cartCourseInfoList.filter((obj) => {
@@ -125,10 +117,14 @@ const CartCourse = (props) => {
       console.log("剩餘課程：");
       console.log(newCartCourseInfoList);
 
-      //計算特定課程金額小計
-      getSubtotal(CurrentInfoObject);
-      //計算當前購物車總金額
-      getSumCartCoursePrice();
+      if (cartCourseInfoList?.length !== 1) {
+        //計算特定課程金額小計
+        getSubtotal(CurrentInfoObject);
+        //計算當前購物車總金額
+        getSumCartCoursePrice();
+      } else {
+        setSumCartCoursePrice(0);
+      }
     }
   }
 
@@ -161,7 +157,11 @@ const CartCourse = (props) => {
         <div className="CartCourse-info-left">
           <div className="CartCourse-pic-container">
             {/* 課程圖片 */}
-            <img src={CoursePic} className="CartCourse-pic"></img>
+            <img
+              src={`${PUBLIC_URL}/upload-images/${CurrentInfoObject.course_image}`}
+              className="CartCourse-pic"
+              alt="課程圖片"
+            ></img>
           </div>
         </div>
 
@@ -170,7 +170,11 @@ const CartCourse = (props) => {
           <div className="CartCourse-info-right-top">
             {/* 此課程名稱 */}
             <div className="CartCourse-name">
-              <h6>{cartCourseInfoList[index].course_name}</h6>
+              <h6 title={cartCourseInfoList[index].course_name}>
+                <Link to={`/courses/${CurrentInfoObject.course_id}`}>
+                  {cartCourseInfoList[index].course_name}
+                </Link>
+              </h6>
             </div>
             {/* 此課程梯次日期 */}
             <div className="CartCourse-batch">
@@ -232,8 +236,7 @@ const CartCourse = (props) => {
                     handleDeleteClick(
                       currentUser.id,
                       CurrentInfoObject.course_id,
-                      CurrentInfoObject.batch_id,
-                      0
+                      CurrentInfoObject.batch_id
                     );
                   }}
                 >

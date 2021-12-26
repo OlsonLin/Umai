@@ -435,7 +435,7 @@ function CourseInfomation(props) {
                       加入購物車
                     </li>
                     <li>|</li>
-                    {batch != "尚未選擇" &&
+                    {batch !== "尚未選擇" &&
                     currentUser &&
                     batch_member <= newCourseJSON[0].member_limit ? (
                       <Link to={{ pathname: link, state: { data: data } }}>

@@ -200,12 +200,6 @@ const CourseCard1 = (props) => {
             <Button
               value={"加入購物車"}
               className={"button-themeColor CourseCard1-buttonCon-btn"}
-              // onClick={() => {
-              //   handleAddIntoCart({
-              //     course_id: courseDetail.id,
-              //     batch: courseDetail.closest_batchs,
-              //   });
-              // }}
               onClick={async () => {
                 if (
                   courseDetail.closest_batchs.member_count ===
@@ -225,15 +219,17 @@ const CourseCard1 = (props) => {
                   // 把課程加入購物車資料庫
                   if (currentUser) {
                     handleAddIntoCart(
+                      currentUser,
                       currentUser.id,
                       Number(courseDetail.id),
                       courseDetail.closest_batchs.batch_id
                     );
-                    console.log(
-                      currentUser.id,
-                      Number(courseDetail.id),
-                      courseDetail.closest_batchs.batch_id
-                    );
+                    // console.log(
+                    //   currentUser,
+                    //   currentUser.id,
+                    //   Number(courseDetail.id),
+                    //   courseDetail.closest_batchs.batch_id
+                    // );
                   } else {
                     Swal.fire({
                       // title: "",

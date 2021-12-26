@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { PUBLIC_URL } from "../config/config";
 import { numDotFormat } from "../config/formula";
 import OrderService from "../services/order.service";
-import courseService from "../services/course.service";
+// import courseService from "../services/course.service";
 
 import { GoSearch } from "react-icons/go";
 import { MdShoppingCart } from "react-icons/md";
@@ -27,11 +27,12 @@ const Navbar = (props) => {
     handleToggleCourseSearch,
     cartCourseInfoList,
     setCartCourseInfoList,
-    newAddCourse,
-    numberOfCoursesInCart,
+    // newAddCourse,
+    // numberOfCoursesInCart,
     sumCartCoursePrice,
     setSumCartCoursePrice,
     handleAddIntoCollection,
+    // getAllCourseObject,
     link,
     setLink,
     data,
@@ -217,7 +218,7 @@ const Navbar = (props) => {
 
   // 確認是否登入，並提醒要登入才能買課程
   async function ifLogIn() {
-    if (currentUser === null) {
+    if (currentUser === undefined) {
       setData({});
       return Swal.fire({
         title: getValidMessage("cart", "D001"),
@@ -227,8 +228,6 @@ const Navbar = (props) => {
         timer: 1500,
       });
     }
-    // 沒登入無法結帳(離開結帳判斷)
-    if (currentUser === null) return;
   }
 
   //頁面初次渲染、課程加入購物車、課程報名數量改變時，即時更新金額
@@ -432,6 +431,15 @@ const Navbar = (props) => {
                       className="Navbar-container-item-btn Navbar-container-item-btn2-avatar"
                     />
                   )}
+                  {/* 未登入，顯示登入註冊按鈕 */}
+                  {!currentUser && (
+                    <button
+                      onClick={handleLoginClick}
+                      className="Navbar-container-item-btn Navbar-container-item-btn-login"
+                    >
+                      登入
+                    </button>
+                  )}
                 </Link>
 
                 {/* 購物車框框(已登入) */}
@@ -446,7 +454,14 @@ const Navbar = (props) => {
                     {/* 購物車課程卡片 */}
                     {cartCourseInfoList.length === 0 ? (
                       <div className="CartCourse-container-empty">
-                        <h5>快去選購更多精彩課程！</h5>
+                        <h5
+                          onClick={() => {
+                            window.location.href =
+                              "http://localhost:3000/courses/category";
+                          }}
+                        >
+                          快去選購更多精彩課程！
+                        </h5>
                       </div>
                     ) : (
                       cartCourseInfoList?.map((Obj) => {
@@ -459,6 +474,7 @@ const Navbar = (props) => {
                               cartCourseInfoList={cartCourseInfoList}
                               setCartCourseInfoList={setCartCourseInfoList}
                               getSumCartCoursePrice={getSumCartCoursePrice}
+                              setSumCartCoursePrice={setSumCartCoursePrice}
                               handleAddIntoCollection={handleAddIntoCollection}
                               refreshCartCourse={refreshCartCourse}
                               data={data}
@@ -496,8 +512,17 @@ const Navbar = (props) => {
                           <Link to={{ pathname: link, state: { data: data } }}>
                             <div
                               className="goCheckOut"
-                              onClick={() => {
+                              onClick={async () => {
                                 ifLogIn();
+                                // let updateResult =
+                                // await courseService.UpdateCart(
+                                //   currentUser.member_id,
+                                //   cartCourseInfoList[0].course_id,
+                                //   cartCourseInfoList[0].batch_id,
+                                //   0,
+                                //   -1 * (cartCourseInfoList[0].amount - 1)
+                                // );
+                                // getAllCourseObject(currentUser.id);
                               }}
                             >
                               <h5>前往結帳</h5>
@@ -557,6 +582,7 @@ const Navbar = (props) => {
                               cartCourseInfoList={cartCourseInfoList}
                               setCartCourseInfoList={setCartCourseInfoList}
                               getSumCartCoursePrice={getSumCartCoursePrice}
+                              setSumCartCoursePrice={setSumCartCoursePrice}
                               currentUser={currentUser}
                               refreshCartCourse={refreshCartCourse}
                               data={data}

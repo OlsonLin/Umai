@@ -132,15 +132,15 @@ function App() {
     console.log("handleAddIntoCart start");
     console.log("member_id, course_id, batch_id: ");
     console.log(member_id, course_id, batch_id);
-    let IfInCartResult = await courseService.IfCourseInCart(
-      member_id,
-      course_id,
-      batch_id
-    );
-    let ifIncart = IfInCartResult.data.inCart[0]?.inCart;
-    console.log("ifIncart: ");
-    // 回傳Incart值;
-    console.log(ifIncart);
+    // let IfInCartResult = await courseService.IfCourseInCart(
+    //   member_id,
+    //   course_id,
+    //   batch_id
+    // );
+    // let ifIncart = IfInCartResult.data.inCart[0]?.inCart;
+    // console.log("ifIncart: ");
+    // // 回傳Incart值;
+    // console.log(ifIncart);
 
     // 在try/catch外宣告變數，用來接住回傳的資料庫狀態
     let updateResult;
@@ -164,6 +164,7 @@ function App() {
     console.log("handleAddIntoCart done");
   }
 
+  // 取得購物車中所有課程資料
   const getAllCourseObject = async function (member_id) {
     try {
       console.log("getAllCourseObject start");
@@ -285,6 +286,7 @@ function App() {
         sumCartCoursePrice={sumCartCoursePrice}
         setSumCartCoursePrice={setSumCartCoursePrice}
         handleAddIntoCollection={handleAddIntoCollection}
+        getAllCourseObject={getAllCourseObject}
         link={link}
         setLink={setLink}
         data={data}
@@ -296,9 +298,7 @@ function App() {
 
       <Switch>
         <Route path="/" exact>
-          <div className="footerPadding">
-            <HomePage />
-          </div>
+          <HomePage />
           <Footer />
         </Route>
 
