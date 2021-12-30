@@ -16,7 +16,6 @@ const CartCourse = (props) => {
     setSumCartCoursePrice,
     getSumCartCoursePrice,
     handleAddIntoCollection,
-    refreshCartCourse,
     data,
     setData,
   } = props;
@@ -31,7 +30,7 @@ const CartCourse = (props) => {
   }
 
   //課堂報名人數減一
-  async function handleCountMinus() {
+  async function handleAmountMinusOne() {
     let newCartCourseInfoList = cartCourseInfoList;
     //數量不可小於1
     if (newCartCourseInfoList[index].amount > 1) {
@@ -43,26 +42,19 @@ const CartCourse = (props) => {
     getSubtotal(CurrentInfoObject);
     //計算當前購物車總金額
     getSumCartCoursePrice();
-
-    setData(
-      JSON.stringify({
-        member_id: currentUser ? currentUser.id : "",
-        course_id: cartCourseInfoList[0] ? cartCourseInfoList[0].course_id : "",
-        batch_id: cartCourseInfoList[0] ? cartCourseInfoList[0].batch_id : "",
-        amount: cartCourseInfoList[0] ? cartCourseInfoList[0].amount : "",
-      })
+    //更新購物車資料庫
+    // let updateResult =
+    await courseService.UpdateCart(
+      CurrentInfoObject.member_id,
+      CurrentInfoObject.course_id,
+      CurrentInfoObject.batch_id,
+      1,
+      -1
     );
-    console.log("data: ");
-    console.log({
-      member_id: currentUser ? currentUser.id : "",
-      course_id: cartCourseInfoList[0] ? cartCourseInfoList[0].course_id : "",
-      batch_id: cartCourseInfoList[0] ? cartCourseInfoList[0].batch_id : "",
-      amount: cartCourseInfoList[0] ? cartCourseInfoList[0].amount : "",
-    });
   }
 
   //課堂報名人數加一
-  async function handleCountPlus() {
+  async function handleAmountPlusOne() {
     let newCartCourseInfoList = cartCourseInfoList;
     //數量不可高於可報名人數上限
     if (
@@ -78,22 +70,15 @@ const CartCourse = (props) => {
     getSubtotal(CurrentInfoObject);
     //計算當前購物車總金額
     getSumCartCoursePrice();
-
-    setData(
-      JSON.stringify({
-        member_id: currentUser ? currentUser.id : "",
-        course_id: cartCourseInfoList ? cartCourseInfoList[0].course_id : "",
-        batch_id: cartCourseInfoList ? cartCourseInfoList[0].batch_id : "",
-        amount: cartCourseInfoList ? cartCourseInfoList[0].amount : "",
-      })
+    //更新購物車資料庫
+    // let updateResult =
+    await courseService.UpdateCart(
+      CurrentInfoObject.member_id,
+      CurrentInfoObject.course_id,
+      CurrentInfoObject.batch_id,
+      1,
+      1
     );
-    console.log("data: ");
-    console.log({
-      member_id: currentUser ? currentUser.id : "",
-      course_id: cartCourseInfoList ? cartCourseInfoList[0].course_id : "",
-      batch_id: cartCourseInfoList ? cartCourseInfoList[0].batch_id : "",
-      amount: cartCourseInfoList ? cartCourseInfoList[0].amount : "",
-    });
   }
 
   //從購物車中刪除指定課程
@@ -125,6 +110,22 @@ const CartCourse = (props) => {
       } else {
         setSumCartCoursePrice(0);
       }
+
+      setData(
+        JSON.stringify({
+          member_id: currentUser ? currentUser.id : "",
+          course_id: cartCourseInfoList ? cartCourseInfoList[0].course_id : "",
+          batch_id: cartCourseInfoList ? cartCourseInfoList[0].batch_id : "",
+          amount: cartCourseInfoList ? cartCourseInfoList[0].amount : "",
+        })
+      );
+      console.log("data: ");
+      console.log({
+        member_id: currentUser ? currentUser.id : "",
+        course_id: cartCourseInfoList ? cartCourseInfoList[0].course_id : "",
+        batch_id: cartCourseInfoList ? cartCourseInfoList[0].batch_id : "",
+        amount: cartCourseInfoList ? cartCourseInfoList[0].amount : "",
+      });
     }
   }
 
@@ -139,16 +140,6 @@ const CartCourse = (props) => {
       console.log(error);
     }
   }, [cartCourseInfoList]);
-
-  // useEffect(() => {
-  //   try {
-  //     // // 重新整理購物車資訊、計算總金額，並刪除購物車中數量小於0的課程
-  //     // refreshCartCourse();
-  //     // console.log("refreshCartCourse");
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }, []);
 
   return (
     <>
@@ -189,7 +180,7 @@ const CartCourse = (props) => {
               <button
                 className="count-minus"
                 id={cartCourseInfoList[index].id}
-                onClick={handleCountMinus}
+                onClick={handleAmountMinusOne}
               >
                 <FaMinus />
               </button>
@@ -203,7 +194,7 @@ const CartCourse = (props) => {
               <button
                 className="count-plus"
                 id={cartCourseInfoList[index].id}
-                onClick={handleCountPlus}
+                onClick={handleAmountPlusOne}
               >
                 <FaPlus />
               </button>

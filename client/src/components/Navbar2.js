@@ -18,6 +18,7 @@ import CartCourse from "./Navbar/CartCourse";
 import { empty } from "statuses";
 import getValidMessage from "../validMessage/validMessage";
 import axios from "axios";
+import courseService from "../services/course.service";
 
 const Navbar = (props) => {
   let {
@@ -70,6 +71,7 @@ const Navbar = (props) => {
   const [checkoutList, setCheckoutList] = useState("");
 
   const [active, setActive] = useState("");
+
   useEffect(() => {
     window.addEventListener("scroll", (e) => {
       if (window.scrollY >= 200) {
@@ -106,43 +108,6 @@ const Navbar = (props) => {
     setSearchValue("");
   }
 
-  // 重新整理購物車資訊、計算總金額
-  async function refreshCartCourse() {
-    let newCartCourseInfoList;
-    if (!ifNoCourseInCart) {
-      newCartCourseInfoList = cartCourseInfoList?.filter((obj) => {
-        return obj.amount > 0;
-      });
-    } else {
-      newCartCourseInfoList = [];
-    }
-    //會影響cartCourseInfoList，放在useEffect時要小心
-    setCartCourseInfoList(newCartCourseInfoList);
-    //計算當前購物車總金額
-    getSumCartCoursePrice();
-  }
-
-  //判斷購物車是否為沒課程的狀態
-  const [ifNoCourseInCart, setIfNoCourseInCart] = useState(true);
-  //當購物車沒課程時，改變狀態判斷
-  function handleIfCourseInCart() {
-    if (
-      !cartCourseInfoList ||
-      cartCourseInfoList === [] ||
-      cartCourseInfoList?.length === 0
-    ) {
-      setIfNoCourseInCart(true);
-    } else {
-      setIfNoCourseInCart(false);
-    }
-  }
-  //當購物車沒課程時，將總金額歸零
-  async function handleSumPriceZeroing() {
-    if (ifNoCourseInCart) {
-      setSumCartCoursePrice(0);
-    }
-  }
-
   //計算當前購物車總金額
   async function getSumCartCoursePrice() {
     if (cartCourseInfoList) {
@@ -172,7 +137,7 @@ const Navbar = (props) => {
 
   //確認購物車是否只有一堂課程
   function ifOnlyCourseInCart() {
-    cartCourseInfoList && cartCourseInfoList.length === 1
+    cartCourseInfoList !== [] && cartCourseInfoList.length === 1
       ? setIsOnlyCourseInCart(true)
       : setIsOnlyCourseInCart(false);
   }
@@ -230,35 +195,11 @@ const Navbar = (props) => {
     }
   }
 
-  //頁面初次渲染、課程加入購物車、課程報名數量改變時，即時更新金額
-  useEffect(() => {
-    // //清空新增課程state
-    // clearNewAddCourse();
-
-    //計算當前購物車總金額
-    getSumCartCoursePrice();
-
-    //判斷購物車是否只有一堂課程
-    ifOnlyCourseInCart();
-
-    //設定結帳連結
-    setLink("/shoppingCart");
-  }, []);
-
-  // useEffect(() => {
-  //   //當購物車沒課程時，將總金額歸零
-  //   handleSumPriceZeroing();
-
-  //   // //確認購物車是否只有一堂課程
-  //   ifOnlyCourseInCart();
-  // }, [cartCourseInfoList]);
-
   // 控制購物車容器開合
   const [cartConOpen, setCartConOpen] = useState(false);
   const handleCartConOpen = () => {
     // console.log("in");
     setCartConOpen(true);
-    // setCartCourseInfoList([]);
     setLink("/shoppingCart");
     setData(
       JSON.stringify({
@@ -280,6 +221,20 @@ const Navbar = (props) => {
     // console.log("out");
     setCartConOpen(false);
   };
+
+  //頁面初次渲染、課程加入購物車、課程報名數量改變時，即時更新金額
+  useEffect(() => {
+    //計算當前購物車總金額
+    getSumCartCoursePrice();
+
+    //設定結帳連結
+    setLink("/shoppingCart");
+  }, []);
+
+  useEffect(() => {
+    //確認購物車是否只有一堂課程
+    ifOnlyCourseInCart();
+  }, [cartCourseInfoList]);
 
   return (
     <div className="Header">
@@ -342,9 +297,6 @@ const Navbar = (props) => {
               <button
                 className="Navbar-container-item-btn Navbar-container-item-ExperienceShare"
                 onClick={() => {
-                  // refreshCartCourse();
-                  // console.log("cartCourseInfoList");
-                  // console.log(cartCourseInfoList);
                   console.log(data);
                 }}
               >
@@ -476,7 +428,6 @@ const Navbar = (props) => {
                               getSumCartCoursePrice={getSumCartCoursePrice}
                               setSumCartCoursePrice={setSumCartCoursePrice}
                               handleAddIntoCollection={handleAddIntoCollection}
-                              refreshCartCourse={refreshCartCourse}
                               data={data}
                               setData={setData}
                             />
@@ -583,8 +534,7 @@ const Navbar = (props) => {
                               setCartCourseInfoList={setCartCourseInfoList}
                               getSumCartCoursePrice={getSumCartCoursePrice}
                               setSumCartCoursePrice={setSumCartCoursePrice}
-                              currentUser={currentUser}
-                              refreshCartCourse={refreshCartCourse}
+                              handleAddIntoCollection={handleAddIntoCollection}
                               data={data}
                               setData={setData}
                             />
