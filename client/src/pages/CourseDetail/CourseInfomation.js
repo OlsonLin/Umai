@@ -133,37 +133,41 @@ function CourseInfomation(props) {
   // 設定一個推薦課程陣列
   const [recommend, setRecommend] = useState([]);
 
-  useEffect(async () => {
-    try {
-      let result = await CourseService.course_courseId(id_number);
-      result.data.course[0].chef_introduction = JSON.parse(
-        result.data.course[0].chef_introduction
-      );
-      result.data.course[0].course_detail = JSON.parse(
-        result.data.course[0].course_detail
-      );
-      window.document.body.scrollTop = 0;
-      window.document.documentElement.scrollTop = 0;
-      setNewCourseJSON(result.data.course);
-      setCourse_batchJSON(result.data.course_batch);
-      setCourse_Score(result.data.course_comment);
-      setCourse_Score_member(result.data.course_comment.length);
-      setCourse_id(id_number);
-      // 推薦課程
-      let Recommend = await CourseService.course_recommend();
-      for (let i = 0; i < Recommend.data.recommend.length; i++) {
-        Recommend.data.recommend[i].course_detail = JSON.parse(
-          Recommend.data.recommend[i].course_detail
+  useEffect(() => {
+    async function getData() {
+      try {
+        let result = await CourseService.course_courseId(id_number);
+        // console.log(`result = ${JSON.stringify(result)}`);
+        result.data.course[0].chef_introduction = JSON.parse(
+          result.data.course[0].chef_introduction
         );
+        result.data.course[0].course_detail = JSON.parse(
+          result.data.course[0].course_detail
+        );
+        window.document.body.scrollTop = 0;
+        window.document.documentElement.scrollTop = 0;
+        setNewCourseJSON(result.data.course);
+        setCourse_batchJSON(result.data.course_batch);
+        setCourse_Score(result.data.course_comment);
+        setCourse_Score_member(result.data.course_comment.length);
+        setCourse_id(id_number);
+        // 推薦課程
+        let Recommend = await CourseService.course_recommend();
+        for (let i = 0; i < Recommend.data.recommend.length; i++) {
+          Recommend.data.recommend[i].course_detail = JSON.parse(
+            Recommend.data.recommend[i].course_detail
+          );
+        }
+        setRecommend(Recommend.data.recommend);
+        return;
+      } catch (error) {
+        console.log(error);
+        // alert("似乎沒有這堂課的資料哦!\n即將導回首頁")
+        // window.location.href='http://localhost:3000/';
       }
-      setRecommend(Recommend.data.recommend);
-      return;
-    } catch (error) {
-      console.log(error);
-      // alert("似乎沒有這堂課的資料哦!\n即將導回首頁")
-      // window.location.href='http://localhost:3000/';
     }
-  }, []);
+    getData();
+  }, [id_number]);
 
   // 現在年月日 用來判斷從後台抓來的日期是否能用
   let nowdate =
@@ -186,7 +190,7 @@ function CourseInfomation(props) {
   let scoreSum = 0;
 
   for (let i = 0; i < course_Score_member; i++) {
-    scoreSum += course_Score[i].score;
+    scoreSum += course_Score[i]?.score;
   }
 
   const [course, setCourse] = useState(0); //課程六圖片
@@ -205,17 +209,17 @@ function CourseInfomation(props) {
     setCourseFoodTitle(
       newCourseJSON[0].course_detail.six_dishes[course].dishes_title
     );
-  }, [newCourseJSON]);
+  }, [newCourseJSON, course]);
 
   useEffect(() => {
     setColor("Coursedetail-chepBoxInfomation Coursedetail-colorActive");
   }, [color]);
   // 重整一次，防止梯次的BUG
   useEffect(() => {
-    if (batch != "尚未選擇") {
+    if (batch !== "尚未選擇") {
       window.location.reload();
     }
-  }, [currentUser]);
+  }, [currentUser, batch]);
 
   // 給萬年曆用的(回傳已選定日期)
   const onChange = (e) => {

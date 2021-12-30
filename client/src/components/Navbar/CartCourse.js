@@ -165,6 +165,14 @@ const CartCourse = (props) => {
                 <Link to={`/courses/${CurrentInfoObject.course_id}`}>
                   {cartCourseInfoList[index].course_name}
                 </Link>
+                {/* {window.location.href !==
+                `http://localhost:3000/courses/${CurrentInfoObject.course_id}` ? (
+                  <Link to={`/courses/${CurrentInfoObject.course_id}`}>
+                    {cartCourseInfoList[index].course_name}
+                  </Link>
+                ) : (
+                  cartCourseInfoList[index].course_name
+                )} */}
               </h6>
             </div>
             {/* 此課程梯次日期 */}

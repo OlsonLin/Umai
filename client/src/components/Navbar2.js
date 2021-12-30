@@ -15,10 +15,8 @@ import avatar from "./images/avatar.svg";
 
 import Swal from "sweetalert2";
 import CartCourse from "./Navbar/CartCourse";
-import { empty } from "statuses";
 import getValidMessage from "../validMessage/validMessage";
 import axios from "axios";
-import courseService from "../services/course.service";
 
 const Navbar = (props) => {
   let {
@@ -61,14 +59,13 @@ const Navbar = (props) => {
   ];
 
   // 錯誤訊息
-  const [errorMsg, setErrorMsg] = useState("");
+  // const [errorMsg, setErrorMsg] = useState("");
+
   // 判斷購物車中是否只有一堂課
   const [isOnlyCourseInCart, setIsOnlyCourseInCart] = useState(false);
 
   const [searchValue, setSearchValue] = useState("");
   const [SearchCourseList, setSearchCourseList] = useState([]);
-
-  const [checkoutList, setCheckoutList] = useState("");
 
   const [active, setActive] = useState("");
 
@@ -140,45 +137,6 @@ const Navbar = (props) => {
     cartCourseInfoList !== [] && cartCourseInfoList.length === 1
       ? setIsOnlyCourseInCart(true)
       : setIsOnlyCourseInCart(false);
-  }
-
-  //確認結帳時購物車是否只有一堂課程，並跳出通知提醒
-  async function ifOnlyCourseInAlert() {
-    //確認購物車是否只有一堂課程
-    ifOnlyCourseInCart();
-
-    if (!isOnlyCourseInCart) {
-      Swal.fire({
-        title: "請確認購買數量是否正確!",
-        icon: "warning",
-        // customClass: "Custom_Cancel",
-        confirmButtonColor: "#0078b3",
-        confirmButtonText: "確認",
-      });
-      return;
-    }
-
-    //設定結帳課程資訊
-    setCheckoutList({
-      member_id: cartCourseInfoList[0].member_id,
-      course_id: cartCourseInfoList[0].course_id,
-      amount: cartCourseInfoList[0].amount,
-    });
-
-    // 結帳資料送後端
-    try {
-      let result = await OrderService.checkout(
-        checkoutList.member_id,
-        checkoutList.course_id
-      );
-
-      // 刪除錯誤訊息
-      setErrorMsg("");
-    } catch (error) {
-      // console.log(error.response);
-      let { code } = error.response.data;
-      setErrorMsg(getValidMessage("cart", code));
-    }
   }
 
   // 確認是否登入，並提醒要登入才能買課程
@@ -268,8 +226,7 @@ const Navbar = (props) => {
                     <li
                       //  12/4 亭
                       onClick={() => {
-                        window.location.href =
-                          "http://localhost:3000/courses/category?" + `${cate}`;
+                        window.location.href = `http://localhost:3000/courses/category?${cate}`;
                       }}
                     >
                       {cate}
@@ -281,8 +238,7 @@ const Navbar = (props) => {
                     <li
                       //  12/4 亭
                       onClick={() => {
-                        window.location.href =
-                          "http://localhost:3000/courses/category?" + `${cate}`;
+                        window.location.href = `http://localhost:3000/courses/category?${cate}`;
                       }}
                     >
                       {cate}
