@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { numDotFormat } from "../../config/formula";
 import courseService from "../../services/course.service";
+import { PUBLIC_URL } from "../../config/config";
 
 import { FaMinus, FaPlus } from "react-icons/fa";
-
-import CoursePic from "../images/img7.jpg";
 
 const CartCourse = (props) => {
   const {
@@ -13,8 +13,9 @@ const CartCourse = (props) => {
     CurrentInfoObject,
     cartCourseInfoList,
     setCartCourseInfoList,
+    setSumCartCoursePrice,
     getSumCartCoursePrice,
-    refreshCartCourse,
+    handleAddIntoCollection,
     data,
     setData,
   } = props;
@@ -24,102 +25,74 @@ const CartCourse = (props) => {
 
   //計算特定課程金額小計
   async function getSubtotal(CurrentInfoObject) {
-    let newSubtotal =
-      CurrentInfoObject.course_price * CurrentInfoObject.cartCourseCount;
+    let newSubtotal = CurrentInfoObject.course_price * CurrentInfoObject.amount;
     setSubtotal(numDotFormat(newSubtotal));
   }
 
   //課堂報名人數減一
-  async function handleCountMinus() {
+  async function handleAmountMinusOne() {
     let newCartCourseInfoList = cartCourseInfoList;
     //數量不可小於1
-    if (newCartCourseInfoList[index].cartCourseCount > 1) {
-      newCartCourseInfoList[index].cartCourseCount =
-        CurrentInfoObject.cartCourseCount - 1;
+    if (newCartCourseInfoList[index].amount > 1) {
+      newCartCourseInfoList[index].amount = CurrentInfoObject.amount - 1;
     }
     await setCartCourseInfoList(newCartCourseInfoList);
 
-    // // 重新整理購物車 (刪除購物車中數量小於0的課程/當購物車沒課程時，將總金額歸零)
-    // refreshCartCourse();
-
-    setData(
-      JSON.stringify({
-        member_id: currentUser ? currentUser.id : "",
-        course_id: cartCourseInfoList[0] ? cartCourseInfoList[0].course_id : "",
-        batch_id: cartCourseInfoList[0] ? cartCourseInfoList[0].batch_id : "",
-        cartCourseCount: cartCourseInfoList[0]
-          ? cartCourseInfoList[0].cartCourseCount
-          : "",
-      })
+    //計算特定課程金額小計
+    getSubtotal(CurrentInfoObject);
+    //計算當前購物車總金額
+    getSumCartCoursePrice();
+    //更新購物車資料庫
+    // let updateResult =
+    await courseService.UpdateCart(
+      CurrentInfoObject.member_id,
+      CurrentInfoObject.course_id,
+      CurrentInfoObject.batch_id,
+      1,
+      -1
     );
-    console.log("data: ");
-    console.log({
-      member_id: currentUser ? currentUser.id : "",
-      course_id: cartCourseInfoList[0] ? cartCourseInfoList[0].course_id : "",
-      batch_id: cartCourseInfoList[0] ? cartCourseInfoList[0].batch_id : "",
-      cartCourseCount: cartCourseInfoList[0]
-        ? cartCourseInfoList[0].cartCourseCount
-        : "",
-    });
   }
 
   //課堂報名人數加一
-  async function handleCountPlus() {
+  async function handleAmountPlusOne() {
     let newCartCourseInfoList = cartCourseInfoList;
     //數量不可高於可報名人數上限
     if (
-      newCartCourseInfoList[index].cartCourseCount <
+      newCartCourseInfoList[index].amount <
       newCartCourseInfoList[index].member_limit -
         newCartCourseInfoList[index].member_count
     ) {
-      newCartCourseInfoList[index].cartCourseCount =
-        CurrentInfoObject.cartCourseCount + 1;
+      newCartCourseInfoList[index].amount = CurrentInfoObject.amount + 1;
     }
     await setCartCourseInfoList(newCartCourseInfoList);
 
-    // // 重新整理購物車 (刪除購物車中數量小於0的課程/當購物車沒課程時，將總金額歸零)
-    // refreshCartCourse();
-
-    setData(
-      JSON.stringify({
-        member_id: currentUser ? currentUser.id : "",
-        course_id: cartCourseInfoList ? cartCourseInfoList[0].course_id : "",
-        batch_id: cartCourseInfoList ? cartCourseInfoList[0].batch_id : "",
-        cartCourseCount: cartCourseInfoList
-          ? cartCourseInfoList[0].cartCourseCount
-          : "",
-      })
+    //計算特定課程金額小計
+    getSubtotal(CurrentInfoObject);
+    //計算當前購物車總金額
+    getSumCartCoursePrice();
+    //更新購物車資料庫
+    // let updateResult =
+    await courseService.UpdateCart(
+      CurrentInfoObject.member_id,
+      CurrentInfoObject.course_id,
+      CurrentInfoObject.batch_id,
+      1,
+      1
     );
-    console.log("data: ");
-    console.log({
-      member_id: currentUser ? currentUser.id : "",
-      course_id: cartCourseInfoList ? cartCourseInfoList[0].course_id : "",
-      batch_id: cartCourseInfoList ? cartCourseInfoList[0].batch_id : "",
-      cartCourseCount: cartCourseInfoList
-        ? cartCourseInfoList[0].cartCourseCount
-        : "",
-    });
   }
 
   //從購物車中刪除指定課程
-  async function handleDeleteClick() {
+  async function handleDeleteClick(member_id, course_id, batch_id) {
     if (cartCourseInfoList.length !== 0) {
       //從購物車資料庫中移除(將inCart歸零)
-      let updateResult = await courseService.UpdateCart(
-        currentUser.id,
-        CurrentInfoObject.course_id,
-        CurrentInfoObject.batch_id,
-        0
+      // let updateResult =
+      await courseService.UpdateCart(
+        member_id,
+        course_id,
+        batch_id,
+        0,
+        -1 * (CurrentInfoObject.amount - 1)
       );
-
-      console.log("Delete_Course: ");
-      console.log(
-        currentUser.id,
-        CurrentInfoObject.course_id,
-        CurrentInfoObject.batch_id,
-        0
-      );
-      console.log(updateResult.data.updateResult[0]);
 
       //從購物車中刪除當前課程
       let newCartCourseInfoList = cartCourseInfoList.filter((obj) => {
@@ -128,6 +101,31 @@ const CartCourse = (props) => {
       setCartCourseInfoList(newCartCourseInfoList);
       console.log("剩餘課程：");
       console.log(newCartCourseInfoList);
+
+      if (cartCourseInfoList?.length !== 1) {
+        //計算特定課程金額小計
+        getSubtotal(CurrentInfoObject);
+        //計算當前購物車總金額
+        getSumCartCoursePrice();
+      } else {
+        setSumCartCoursePrice(0);
+      }
+
+      setData(
+        JSON.stringify({
+          member_id: currentUser ? currentUser.id : "",
+          course_id: cartCourseInfoList ? cartCourseInfoList[0].course_id : "",
+          batch_id: cartCourseInfoList ? cartCourseInfoList[0].batch_id : "",
+          amount: cartCourseInfoList ? cartCourseInfoList[0].amount : "",
+        })
+      );
+      console.log("data: ");
+      console.log({
+        member_id: currentUser ? currentUser.id : "",
+        course_id: cartCourseInfoList ? cartCourseInfoList[0].course_id : "",
+        batch_id: cartCourseInfoList ? cartCourseInfoList[0].batch_id : "",
+        amount: cartCourseInfoList ? cartCourseInfoList[0].amount : "",
+      });
     }
   }
 
@@ -138,21 +136,10 @@ const CartCourse = (props) => {
       getSubtotal(CurrentInfoObject);
       //計算當前購物車總金額
       getSumCartCoursePrice();
-      console.log("88888888888888888888888888888888888888888888888");
     } catch (error) {
       console.log(error);
     }
   }, [cartCourseInfoList]);
-
-  useEffect(() => {
-    try {
-      // // 重新整理購物車資訊、計算總金額，並刪除購物車中數量小於0的課程
-      // refreshCartCourse();
-      console.log("refreshCartCourse");
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
 
   return (
     <>
@@ -161,7 +148,11 @@ const CartCourse = (props) => {
         <div className="CartCourse-info-left">
           <div className="CartCourse-pic-container">
             {/* 課程圖片 */}
-            <img src={CoursePic} className="CartCourse-pic"></img>
+            <img
+              src={`${PUBLIC_URL}/upload-images/${CurrentInfoObject.course_image}`}
+              className="CartCourse-pic"
+              alt="課程圖片"
+            ></img>
           </div>
         </div>
 
@@ -170,7 +161,19 @@ const CartCourse = (props) => {
           <div className="CartCourse-info-right-top">
             {/* 此課程名稱 */}
             <div className="CartCourse-name">
-              <h6>{cartCourseInfoList[index].course_name}</h6>
+              <h6 title={cartCourseInfoList[index].course_name}>
+                <Link to={`/courses/${CurrentInfoObject.course_id}`}>
+                  {cartCourseInfoList[index].course_name}
+                </Link>
+                {/* {window.location.href !==
+                `http://localhost:3000/courses/${CurrentInfoObject.course_id}` ? (
+                  <Link to={`/courses/${CurrentInfoObject.course_id}`}>
+                    {cartCourseInfoList[index].course_name}
+                  </Link>
+                ) : (
+                  cartCourseInfoList[index].course_name
+                )} */}
+              </h6>
             </div>
             {/* 此課程梯次日期 */}
             <div className="CartCourse-batch">
@@ -185,21 +188,21 @@ const CartCourse = (props) => {
               <button
                 className="count-minus"
                 id={cartCourseInfoList[index].id}
-                onClick={handleCountMinus}
+                onClick={handleAmountMinusOne}
               >
                 <FaMinus />
               </button>
 
               {/* 此課程報名人數 */}
               <div className="count" id={cartCourseInfoList[index].id}>
-                {cartCourseInfoList[index].cartCourseCount}
+                {cartCourseInfoList[index].amount}
               </div>
 
               {/* 課堂報名人數加一 */}
               <button
                 className="count-plus"
                 id={cartCourseInfoList[index].id}
-                onClick={handleCountPlus}
+                onClick={handleAmountPlusOne}
               >
                 <FaPlus />
               </button>
@@ -214,7 +217,11 @@ const CartCourse = (props) => {
             <div className="edit-Button">
               {/* 收藏此課程 */}
               <div className="addToCollection">
-                <button>
+                <button
+                  onClick={() => {
+                    handleAddIntoCollection(CurrentInfoObject.course_id);
+                  }}
+                >
                   <p>收藏</p>
                 </button>
               </div>
@@ -222,7 +229,16 @@ const CartCourse = (props) => {
 
               {/* 從購物車中刪除此課程 */}
               <div className="DeleteThisCourse">
-                <button index={index} onClick={handleDeleteClick}>
+                <button
+                  index={index}
+                  onClick={() => {
+                    handleDeleteClick(
+                      currentUser.id,
+                      CurrentInfoObject.course_id,
+                      CurrentInfoObject.batch_id
+                    );
+                  }}
+                >
                   <p>刪除</p>
                 </button>
               </div>

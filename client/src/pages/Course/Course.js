@@ -7,11 +7,7 @@ import LoadMoreButton from "../../components/LoadMoreButton";
 import CourseCard from "../../components/CourseCard1";
 
 import CategoryService from "../../services/category.service";
-import CourseService from "../../services/course.service";
-import getValidMessage from "../../validMessage/validMessage";
 import { PUBLIC_URL } from "../../config/config";
-import { number } from "joi";
-import Swal from "sweetalert2";
 
 function Course(props) {
   const {
@@ -21,19 +17,13 @@ function Course(props) {
     setLink,
     data,
     setData,
-    // clearNewAddCourse,
-    // addCourseIntoCart,
-    // checkoutCourse,
-    // setCheckoutCourse,
+    collectionIds,
+    refreshCollection,
+    handleAddIntoCollection,
+    handleAddIntoCart,
   } = props;
   // 抓search用 Ex category?... search抓到?...
   let category_number = location.search.slice(1);
-
-  // 當前所有收藏課程
-  const [currentCourses, setCurrentCourses] = useState([]);
-
-  // 當前使用者所有的收藏課程id
-  const [collectionIds, setCollectionIds] = useState([]);
 
   // 各式影片 預設日式
   const [categoryVideo, setCategoryVideo] = useState("Japan");
@@ -55,37 +45,6 @@ function Course(props) {
     }
   }, [currentUser]);
 
-  // 重整當前收藏課程
-  let refreshCollection = async () => {
-    try {
-      let result = await CourseService.course_collection(currentUser.id);
-
-      // 如果這次沒回傳任何course
-      if (!result.data.course) {
-        setCurrentCourses([]);
-        setCollectionIds([]);
-        return;
-      }
-
-      // 設定當前課程的資料Array
-      setCurrentCourses(result.data.course);
-
-      // 設定當前使用者的所有收藏課程Array
-      setCollectionIds(result.data.course.map((item) => item.id));
-    } catch (error) {
-      console.log(error.response);
-      let { code } = error.response.data;
-
-      // 跳通知
-      Swal.fire({
-        icon: "error",
-        title: getValidMessage("course", code),
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    }
-  };
-
   // 拿到此會員的收藏課程
   useEffect(async () => {
     try {
@@ -96,57 +55,6 @@ function Course(props) {
       console.log(error);
     }
   }, []);
-
-  // 加入/移除收藏
-  const handleAddIntoCollection = async (course_id) => {
-    if (!currentUser) {
-      Swal.fire({
-        icon: "error",
-        title: "請先登入後再進行操作哦！",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    }
-    // 判斷此課程是否在收藏內
-    let type = collectionIds.includes(course_id);
-
-    try {
-      let result = await CourseService.course_collection_edit(
-        currentUser.id,
-        course_id,
-        type
-      );
-      if (type) {
-        // 跳通知
-        Swal.fire({
-          icon: "success",
-          title: "課程收藏刪除成功！",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      } else
-        Swal.fire({
-          icon: "success",
-          title: "課程收藏成功！",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-
-      // 拿到更新後的課程收藏
-      if (currentUser) {
-        refreshCollection();
-      }
-    } catch (error) {
-      console.log(error.response);
-      // let { code } = error.response.data;
-      // setErrorMsg(getValidMessage("course", code));
-    }
-  };
-  // 加入購物車
-  const handleAddIntoCart = (course_id) => {
-    console.log("加入購物車");
-    console.log(course_id);
-  };
 
   // 立即購買
   const handlePurchase = (course_id) => {
@@ -249,47 +157,47 @@ function Course(props) {
     }
   }, [page]);
 
-  if (location.search != "") {
+  if (location.search !== "") {
     if (
-      category_number == "Japan" ||
-      category_number == 1 ||
-      category_number == "%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "Japan" ||
+      category_number === 1 ||
+      category_number === "%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 1;
     } else if (
-      category_number == "Korea" ||
-      category_number == 2 ||
-      category_number == "%E9%9F%93%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "Korea" ||
+      category_number === 2 ||
+      category_number === "%E9%9F%93%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 2;
     } else if (
-      category_number == "France" ||
-      category_number == 3 ||
-      category_number == "%E6%B3%95%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "France" ||
+      category_number === 3 ||
+      category_number === "%E6%B3%95%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 3;
     } else if (
-      category_number == "Italy" ||
-      category_number == 4 ||
-      category_number == "%E7%BE%A9%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "Italy" ||
+      category_number === 4 ||
+      category_number === "%E7%BE%A9%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 4;
     } else if (
-      category_number == "Chinese" ||
-      category_number == 5 ||
-      category_number == "%E4%B8%AD%E5%BC%8F%E6%96%99%E7%90%86"
+      category_number === "Chinese" ||
+      category_number === 5 ||
+      category_number === "%E4%B8%AD%E5%BC%8F%E6%96%99%E7%90%86"
     ) {
       category_number = 5;
     } else if (
-      category_number == "Mediation" ||
-      category_number == 6 ||
-      category_number == "%E7%B6%93%E5%85%B8%E8%AA%BF%E9%A3%B2"
+      category_number === "Mediation" ||
+      category_number === 6 ||
+      category_number === "%E7%B6%93%E5%85%B8%E8%AA%BF%E9%A3%B2"
     ) {
       category_number = 6;
     } else if (
-      category_number == "All" ||
-      category_number == 7 ||
-      category_number == "all"
+      category_number === "All" ||
+      category_number === 7 ||
+      category_number === "all"
     ) {
       category_number = 7;
     } else category_number = 0;
@@ -308,7 +216,7 @@ function Course(props) {
       // 複製分級的陣列
       let TrueArrow = [...categoryLevel]
         .filter(function (item) {
-          return item.closest_batchs?.batch_date != null;
+          return item.closest_batchs?.batch_date !== null;
         })
         .sort(function (a, b) {
           //  如果日期正常，進行日期比對，日期大的往後排
@@ -318,7 +226,7 @@ function Course(props) {
         });
       let falseArrow = [...categoryLevel].filter(function (item) {
         //  如果日期Null，就不比了，沒意義
-        return item.closest_batchs?.batch_date == null;
+        return item.closest_batchs?.batch_date === null;
       });
       // 接在一起
       Array.prototype.push.apply(TrueArrow, falseArrow);
@@ -331,7 +239,7 @@ function Course(props) {
       console.log(selectedOptionDate);
       let TrueArrow = [...categoryLevel]
         .filter(function (item) {
-          return item.closest_batchs?.batch_date != null;
+          return item.closest_batchs?.batch_date !== null;
         })
         .sort(function (a, b) {
           return a.closest_batchs?.batch_date < b.closest_batchs?.batch_date
@@ -339,7 +247,7 @@ function Course(props) {
             : -1;
         });
       let falseArrow = [...categoryLevel].filter(function (item) {
-        return item.closest_batchs?.batch_date == null;
+        return item.closest_batchs?.batch_date === null;
       });
       Array.prototype.push.apply(TrueArrow, falseArrow);
       setCategory(TrueArrow);
@@ -381,21 +289,21 @@ function Course(props) {
 
     if (selectedOptionStart === "true" && selectedOptionDate === "") {
       let TrueArrow = [...categoryLevel].filter(function (item) {
-        return item.closest_batchs?.batch_date != null;
+        return item.closest_batchs?.batch_date !== null;
       });
 
       let falseArrow = [...categoryLevel].filter(function (item) {
-        return item.closest_batchs?.batch_date == null;
+        return item.closest_batchs?.batch_date === null;
       });
 
       Array.prototype.push.apply(TrueArrow, falseArrow);
       setCategory(TrueArrow);
-    } else if (selectedOptionStart === "true" && selectedOptionDate != "") {
+    } else if (selectedOptionStart === "true" && selectedOptionDate !== "") {
       console.log("123");
       setCategory(categoryCondition);
     } else if (selectedOptionStart === "false") {
       let TrueArrow = [...category].filter(function (item) {
-        return item.closest_batchs?.batch_date != null;
+        return item.closest_batchs?.batch_date !== null;
       });
       setCategory(TrueArrow);
     }
@@ -413,17 +321,17 @@ function Course(props) {
     if (selectedOptionLevel === "3") {
       setCategory(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 3;
+          return item.course_level === 3;
         })
       );
       setCategoryLevel(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 1;
+          return item.course_level === 1;
         })
       );
       setCategoryLevel(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 3;
+          return item.course_level === 3;
         })
       );
       setPageData(category.slice(0, perPage));
@@ -431,12 +339,12 @@ function Course(props) {
     if (selectedOptionLevel === "2") {
       setCategory(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 2;
+          return item.course_level === 2;
         })
       );
       setCategoryLevel(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 2;
+          return item.course_level === 2;
         })
       );
       setPageData(category.slice(0, perPage));
@@ -444,12 +352,12 @@ function Course(props) {
     if (selectedOptionLevel === "1") {
       setCategory(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 1;
+          return item.course_level === 1;
         })
       );
       setCategoryLevel(
         [...categoryOrigin].filter(function (item) {
-          return item.course_level == 1;
+          return item.course_level === 1;
         })
       );
     }
@@ -521,7 +429,7 @@ function Course(props) {
               setSelectedOptionStart("");
             }}
           >
-            <option value="" selected={selectedOptionDate == ""}>
+            <option value="" selected={selectedOptionDate === ""}>
               課程排序
             </option>
             <option value="離今日最近">離今日最近</option>
@@ -535,7 +443,7 @@ function Course(props) {
               setSelectedOptionStart(e.target.value);
             }}
           >
-            <option value="" selected={selectedOptionStart == ""}>
+            <option value="" selected={selectedOptionStart === ""}>
               課程顯示
             </option>
             <option value="true">顯示全部課程</option>
@@ -559,23 +467,7 @@ function Course(props) {
                 data={data}
                 setData={setData}
                 currentUser={currentUser}
-                // clearNewAddCourse={clearNewAddCourse}
-                // addCourseIntoCart={addCourseIntoCart}
-                // checkoutCourse={checkoutCourse}
-                // setCheckoutCourse={setCheckoutCourse}
               />
-
-              // <CourseCard
-              //   courseDetail={category[i]}
-              //   // collectionIds={["1"]} //判斷是否收藏(可以給空)
-              //   // handleAddIntoCollection={122} //加入收藏
-              //   // handleAddIntoCart={5464} //加入購物車
-              //   // handlePurchase={4564} //直接購買
-              //   clearNewAddCourse={clearNewAddCourse}
-              //   addCourseIntoCart={addCourseIntoCart}
-              //   checkoutCourse={checkoutCourse}
-              //   setCheckoutCourse={setCheckoutCourse}
-              // />
             ))}
         </div>
 
