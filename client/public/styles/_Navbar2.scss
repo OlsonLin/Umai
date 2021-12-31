@@ -194,6 +194,9 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                h5:hover {
+                  cursor: pointer;
+                }
               }
               .Navbar-container-item-Cart-dropdown-info-bottom {
                 height: 7rem;

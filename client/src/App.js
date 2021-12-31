@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import AuthService from "./services/auth.service";
 
-import NavbarOld from "./components/Navbar";
 import courseService from "./services/course.service";
 import HomePage from "./pages/Homepage/HomePage";
 import Navbar2 from "./components/Navbar2";
-import NavbarHomePage from "./components/NavbarHomePage";
 import MemberCenter from "./pages/MemberCenter/MemberCenter";
 import Login from "./components/member/Login";
 import ShoppingCart from "./pages/ShoppingCart/shopping-cart/ShoppingCart";
 import ShoppingList from "./pages/ShoppingCart/ShoppingList/ShoppingList";
 import PaymentMethod from "./pages/ShoppingCart/paymentMethod/PaymentMethod";
-import { numDotFormat } from "./config/formula";
+import getValidMessage from "./validMessage/validMessage";
+import Swal from "sweetalert2";
 
 // 測試元件區
-import Masonry from "./pages/Masonry/Masonry";
+// import Masonry from "./pages/Masonry/Masonry";
 import Forum from "./pages/Forum/Forum";
 
 import Contactus from "./pages/Contactus/Contactus";
@@ -24,29 +24,27 @@ import Course from "./pages/Course/Course";
 import Chef from "./pages/Chef/Chef";
 
 import CourseDetail from "./pages/CourseDetail/CourseInfomation";
-import CourseStar from "./pages/CourseDetail/CourseStar";
-import DefaultStudentCard from "./components/DefaultStudentCard";
-import CourseMiniCard from "./components/CourseMiniCard";
-import ShareCard from "./components/ShareCard";
-import Calendar from "./components/Calendar";
-import CalendarAvailable from "./components/CalendarAvailable";
-import CalendarMulti from "./components/CalendarMulti";
 import ForumPublish from "./pages/Forum/ForumPublish";
 import ForumUpdate from "./pages/Forum/ForumUpdate";
 import Footer from "./components/Footer";
 
 function App() {
-  //用Link傳資料給結帳頁面
+  // 用Link傳資料給結帳頁面
+  // 結帳網址
   const [link, setLink] = useState("/");
+  // 結帳資料
   const [data, setData] = useState({});
+
+  // 當前所有收藏課程
+  const [currentCourses, setCurrentCourses] = useState([]);
+  // 當前使用者所有的收藏課程id
+  const [collectionIds, setCollectionIds] = useState([]);
 
   // 存取當前登入中的使用者資料
   const [currentUser, setCurrentUser] = useState(AuthService.getCurrentUser());
   // 登入視窗開關狀態
   const [showLogin, setShowLogin] = useState(false);
 
-  //搜尋內容
-  const [searchValue, setSearchValue] = useState("");
   //課程搜尋列狀態
   const [isActiveCourseSearch, setActiveCourseSearch] = useState("false");
 
@@ -62,7 +60,7 @@ function App() {
   //   batch_id: "", //(course_batch table)
   //   batch_date: "", //(course_batch table)
   //   member_count: "", //(course_batch table)
-  //   cartCourseCount: 1, //(notInDB)
+  //   amount: 1, //
   // }]
   //新增課程
   const [newAddCourse, setNewAddCourse] = useState({});
@@ -97,172 +95,182 @@ function App() {
     }
   };
 
-  //清空新增課程state (加入課程A)
-  async function clearNewAddCourse() {
-    //清空並觸發Navbar2中的useEffect
-    setNewAddCourse({});
-    console.log("clearNewAddCourse");
+  //產生購物車中，單筆課程所需用到的資料
+  let getOneCourseObject = async (batch_id) => {
+    try {
+      // 根據course_id與batch_id拿到購物車所需的課程資料 (cart)
+      let result = await courseService.getOneCourseObject(batch_id);
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 判斷是否登入，並加入購物車
+  async function handleAddIntoCart(
+    currentUser,
+    member_id,
+    course_id,
+    batch_id
+  ) {
+    // 把課程加入購物車資料庫
+    if (currentUser) {
+      // 把課程加入購物車資料庫
+      addCourseIntoCart(member_id, course_id, batch_id);
+    } else {
+      // 把課程加入購物車state
+      setCartCourseInfoList(
+        ...cartCourseInfoList,
+        getOneCourseObject(batch_id)
+      );
+    }
   }
 
-  // 把課程加入購物車資料庫 (加入課程B)
+  // 把課程加入購物車資料庫
   async function addCourseIntoCart(member_id, course_id, batch_id) {
     //檢查購物車資料庫中是否已經有此課程
-    console.log("addCourseIntoCart FE");
+    console.log("handleAddIntoCart start");
+    console.log("member_id, course_id, batch_id: ");
     console.log(member_id, course_id, batch_id);
-    let IfInCartResult = await courseService.IfCourseInCart(
-      member_id,
-      course_id,
-      batch_id
-    );
-    // console.log(IfInCartResult.data.inCart);
+    // let IfInCartResult = await courseService.IfCourseInCart(
+    //   member_id,
+    //   course_id,
+    //   batch_id
+    // );
     // let ifIncart = IfInCartResult.data.inCart[0]?.inCart;
-    let ifIncart = IfInCartResult.data.inCart;
-    // let ifIncart = 1;
-    console.log("back to FE");
-    // 回傳Incart值;
-    console.log(ifIncart);
+    // console.log("ifIncart: ");
+    // // 回傳Incart值;
+    // console.log(ifIncart);
 
-    //產生購物車中，單筆課程所需用到的資料
-    let getOneCourseObject = async () => {
-      try {
-        // 根據course_id與batch_id拿到購物車所需的課程資料 (cart)
-        let result = await courseService.getOneCourseObject(
-          course_id,
-          batch_id
-        );
-        return {
-          member_id,
-          course_id,
-          batch_id,
-          ...result.data.courseInfoInCart[0],
-          cartCourseCount: 1,
-        };
-      } catch (error) {
-        console.log(error);
-      }
-    };
+    // 在try/catch外宣告變數，用來接住回傳的資料庫狀態
+    let updateResult;
 
-    //先在switch外宣告一個共用變數，用來接住資料庫回傳的個別課程資料
-    let CartCourseObject;
-
-    //已有此課程就更新的購物車(UPDATE inCart)，若沒有則新增資料(INSERT)
-    switch (ifIncart) {
-      //在資料庫中但不在購物車中
-      case 0:
-        // 根據member_id, course_id, batch_id把更新購物車資料庫(Update)
-        console.log("UpdateCart");
-        let updateResult = await courseService.UpdateCart(
-          member_id,
-          course_id,
-          batch_id,
-          1
-        );
-        try {
-          CartCourseObject = await getOneCourseObject(course_id, batch_id);
-        } catch (error) {
-          console.log(error);
-        }
-        console.log("回傳購物車資訊");
-        console.log(CartCourseObject);
-        break;
-
-      //在資料庫中也在購物車中
-      case 1:
-        try {
-          CartCourseObject = await getOneCourseObject(course_id, batch_id);
-        } catch (error) {
-          console.log(error);
-        }
-        console.log("回傳購物車資訊");
-        console.log(CartCourseObject);
-        break;
-
-      //不在資料庫中
-      case undefined:
-        // 把課程加入購物車資料庫(INSERT)
-        await courseService.addCourseIntoCart(member_id, course_id, batch_id);
-        try {
-          CartCourseObject = await getOneCourseObject();
-        } catch (error) {
-          console.log(error);
-        }
-        console.log("回傳購物車資訊");
-        console.log(CartCourseObject);
-        break;
-      //ifIncart error
-      default:
-        console.log("ifIncart error");
-        break;
+    try {
+      // 把該課程加入購物車資料庫
+      updateResult = await courseService.UpdateCart(
+        member_id,
+        course_id,
+        batch_id,
+        1,
+        1
+      );
+    } catch (error) {
+      console.log(error);
     }
-
-    //確認此課程梯次是否已存在該會員的購物車資料庫中
-    if (ifIncart === 1) {
-      setNewAddCourse([CartCourseObject, "+1"]);
-    } else {
-      //從未將此課程梯次加入購物車
-      setNewAddCourse([CartCourseObject]);
-    }
-
-    if (newAddCourse.length === 2) {
-      console.log(cartCourseInfoList);
-      let newCartCourseInfoList = cartCourseInfoList;
-      // if 購物車真的有東西
-      if (newCartCourseInfoList?.length > 0) {
-        newCartCourseInfoList = newCartCourseInfoList.map((obj) => {
-          if (obj.course_id === newAddCourse[0].course_id) {
-            obj.cartCourseCount = obj.cartCourseCount + 1;
-          }
-          return obj;
-        });
-        console.log("newAddCourse.length-2");
-        console.log(newCartCourseInfoList);
-        console.log(newCartCourseInfoList.cartCourseCount);
-        setCartCourseInfoList([...newCartCourseInfoList]);
-      }
-    }
+    console.log("此課程於資料庫中的狀態: ");
+    console.log(updateResult.data.updateResult[0]);
+    //取得所有課程資料，同時re-render購物車
     getAllCourseObject(currentUser.id);
-    console.log("setNewAddCourse");
-    console.log("Exit");
-    //前往執行以NewAddCourse作為依賴的useEffect(在Navbar2當中)
+    console.log("handleAddIntoCart done");
   }
 
-  // 結帳資料
-  const [checkoutCourse, setCheckoutCourse] = useState({
-    member_id: undefined,
-    course_id: undefined,
-    batch_id: undefined,
-    cartCourseCount: 1,
-  });
-
+  // 取得購物車中所有課程資料
   const getAllCourseObject = async function (member_id) {
     try {
-      console.log("99999999999999999999999999999999999999");
+      console.log("getAllCourseObject start");
       let result = await courseService.getAllCourseObject(member_id);
-      console.log(result);
       let consoleCheck = result.data.courseInfoInCart;
+      // 如果購物車沒課程則將cartCourseInfoList恢復成空陣列
+      if (consoleCheck === undefined) consoleCheck = [];
       setCartCourseInfoList(consoleCheck);
-      console.log("getAllCourseObject :");
+      console.log("cartCourseInfoList :");
       console.log(consoleCheck);
     } catch (error) {
       console.log(error);
-      console.log(error.response);
     }
   };
-  useEffect(() => {
-    console.log("88888887423572577547257258725");
-    console.log(cartCourseInfoList);
-  }, [cartCourseInfoList]);
+
+  // 加入/移除收藏
+  const handleAddIntoCollection = async (course_id) => {
+    if (!currentUser) {
+      Swal.fire({
+        icon: "error",
+        title: "請先登入後再進行操作哦！",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+    // 判斷此課程是否在收藏內
+    let type = collectionIds.includes(course_id);
+
+    try {
+      let result = await courseService.course_collection_edit(
+        currentUser.id,
+        course_id,
+        type
+      );
+      if (type) {
+        // 跳通知
+        Swal.fire({
+          icon: "success",
+          title: "課程收藏刪除成功！",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      } else
+        Swal.fire({
+          icon: "success",
+          title: "課程收藏成功！",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+      // 拿到更新後的課程收藏
+      if (currentUser) {
+        refreshCollection();
+      }
+    } catch (error) {
+      console.log(error.response);
+      // let { code } = error.response.data;
+      // setErrorMsg(getValidMessage("course", code));
+    }
+  };
+
+  // 重整當前收藏課程
+  let refreshCollection = async () => {
+    try {
+      let result = await courseService.course_collection(currentUser.id);
+
+      // 如果這次沒回傳任何course
+      if (!result.data.course) {
+        setCurrentCourses([]);
+        setCollectionIds([]);
+        return;
+      }
+
+      // 設定當前課程的資料Array
+      setCurrentCourses(result.data.course);
+
+      // 設定當前使用者的所有收藏課程Array
+      setCollectionIds(result.data.course.map((item) => item.id));
+    } catch (error) {
+      console.log(error.response);
+      let { code } = error.response.data;
+
+      // 跳通知
+      Swal.fire({
+        icon: "error",
+        title: getValidMessage("course", code),
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
+
+  // useEffect(() => {
+  // }, [cartCourseInfoList]);
 
   useEffect(() => {
     if (currentUser) {
       try {
         getAllCourseObject(currentUser.id);
-        console.log("99999999999999999999999999999999999999");
+        console.log("member_id: ");
+        console.log(currentUser.id);
       } catch (error) {
         console.log(error);
       }
     }
-  }, []);
+  }, [currentUser]);
 
   return (
     <Router>
@@ -273,13 +281,12 @@ function App() {
         handleToggleCourseSearch={handleToggleCourseSearch}
         cartCourseInfoList={cartCourseInfoList}
         setCartCourseInfoList={setCartCourseInfoList}
-        checkoutCourse={checkoutCourse}
-        setCheckoutCourse={setCheckoutCourse}
         newAddCourse={newAddCourse}
-        clearNewAddCourse={clearNewAddCourse}
         numberOfCoursesInCart={numberOfCoursesInCart}
         sumCartCoursePrice={sumCartCoursePrice}
         setSumCartCoursePrice={setSumCartCoursePrice}
+        handleAddIntoCollection={handleAddIntoCollection}
+        getAllCourseObject={getAllCourseObject}
         link={link}
         setLink={setLink}
         data={data}
@@ -291,17 +298,12 @@ function App() {
 
       <Switch>
         <Route path="/" exact>
-          <div className="footerPadding">
-            <HomePage />
-          </div>
+          <HomePage />
           <Footer />
         </Route>
 
         <Route path="/ShoppingCart" exact>
-          <ShoppingCart
-            currentUser={currentUser}
-            checkoutCourse={checkoutCourse}
-          />
+          <ShoppingCart currentUser={currentUser} />
           <Footer />
         </Route>
 
@@ -309,10 +311,7 @@ function App() {
           <MemberCenter
             currentUser={currentUser}
             setCurrentUser={setCurrentUser}
-            clearNewAddCourse={clearNewAddCourse}
-            addCourseIntoCart={addCourseIntoCart}
-            checkoutCourse={checkoutCourse}
-            setCheckoutCourse={setCheckoutCourse}
+            handleAddIntoCart={handleAddIntoCart}
           />
         </Route>
 
@@ -327,14 +326,14 @@ function App() {
           <div className="footerPadding">
             <Course
               currentUser={currentUser}
-              clearNewAddCourse={clearNewAddCourse}
-              addCourseIntoCart={addCourseIntoCart}
-              checkoutCourse={checkoutCourse}
-              setCheckoutCourse={setCheckoutCourse}
               link={link}
               setLink={setLink}
               data={data}
               setData={setData}
+              collectionIds={collectionIds}
+              refreshCollection={refreshCollection}
+              handleAddIntoCollection={handleAddIntoCollection}
+              handleAddIntoCart={handleAddIntoCart}
             />
           </div>
           <Footer />
@@ -344,7 +343,7 @@ function App() {
           <div className="footerPadding">
             <Course
               currentUser={currentUser}
-              addCourseIntoCart={addCourseIntoCart}
+              handleAddIntoCart={handleAddIntoCart}
             />
           </div>
           <Footer />
@@ -367,10 +366,8 @@ function App() {
           <div className="footerPadding">
             <CourseDetail
               currentUser={currentUser}
-              clearNewAddCourse={clearNewAddCourse}
-              addCourseIntoCart={addCourseIntoCart}
-              checkoutCourse={checkoutCourse}
-              setCheckoutCourse={setCheckoutCourse}
+              handleLoginClick={handleLoginClick}
+              handleAddIntoCart={handleAddIntoCart}
               link={link}
               setLink={setLink}
               data={data}

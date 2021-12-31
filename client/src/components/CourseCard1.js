@@ -7,6 +7,7 @@ import Button from "./Button";
 import StarGroup from "./StarGroup";
 import { PUBLIC_URL } from "../config/config";
 import { numDotFormat } from "../config/formula";
+import Swal from "sweetalert2";
 
 // 判斷三個不同階級
 let leverArray = ["", "高階", "中階", "初階"];
@@ -199,11 +200,47 @@ const CourseCard1 = (props) => {
             <Button
               value={"加入購物車"}
               className={"button-themeColor CourseCard1-buttonCon-btn"}
-              onClick={() => {
-                handleAddIntoCart({
-                  course_id: courseDetail.id,
-                  batch: courseDetail.closest_batchs,
-                });
+              onClick={async () => {
+                if (
+                  courseDetail.closest_batchs.member_count ===
+                  courseDetail.member_limit
+                ) {
+                  Swal.fire({
+                    // title: "",
+                    icon: "warning",
+                    // customClass: "Custom_Cancel",
+                    confirmButtonColor: "#0078b3",
+                    confirmButtonText: "該梯次額滿囉，請選擇其他梯次",
+                  }).then(function () {
+                    window.document.body.scrollTop = 0;
+                    window.document.documentElement.scrollTop = 0;
+                  });
+                } else {
+                  // 把課程加入購物車資料庫
+                  if (currentUser) {
+                    handleAddIntoCart(
+                      currentUser,
+                      currentUser.id,
+                      Number(courseDetail.id),
+                      courseDetail.closest_batchs.batch_id
+                    );
+                    // console.log(
+                    //   currentUser,
+                    //   currentUser.id,
+                    //   Number(courseDetail.id),
+                    //   courseDetail.closest_batchs.batch_id
+                    // );
+                  } else {
+                    Swal.fire({
+                      // title: "",
+                      icon: "warning",
+                      // customClass: "Custom_Cancel",
+                      confirmButtonColor: "#0078b3",
+                      confirmButtonText: "請先登入再結帳",
+                    });
+                  }
+                }
+                console.log(courseDetail);
               }}
             />
             {/* <Link

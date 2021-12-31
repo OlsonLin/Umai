@@ -33,6 +33,12 @@
         h6 {
           color: #555;
           font-weight: 700;
+          a {
+            justify-content: flex-start;
+          }
+          &:hover {
+            color: --main-color-hover;
+          }
         }
       }
       .CartCourse-batch {
